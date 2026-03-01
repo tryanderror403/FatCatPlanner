@@ -1,0 +1,31 @@
+# Git & VCS
+.git
+.gitignore
+
+# Virtual Environment
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.pyc
+__pycache__/
+
+# Deployment-Dateien (nicht im Image nötig)
+fatcat.service
+install_service.sh
+setup_service.py
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Dokumentation
+README.md
+CHANGELOG.md
+DOCUMENTATION.md
+LICENSE
+
+# Lokale Daten (werden als Volume gemountet)
+planner.db
+.env
+logs/

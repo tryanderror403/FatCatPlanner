@@ -1,0 +1,30 @@
+[Unit]
+Description=Fat Cat Planner – FFXIV Event Bot
+Documentation=https://github.com/your-repo/FatCatPlanner
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# ── Benutzer & Verzeichnis ──
+# Passe diese Werte an dein System an:
+User=pi
+WorkingDirectory=/path/to/FatCatPlanner
+
+# ── Start ──
+# Nutzt run_bot.sh (erstellt venv, installiert deps, startet Bot)
+ExecStart=/bin/bash /path/to/FatCatPlanner/run_bot.sh
+
+# ── Auto-Restart bei Absturz ──
+Restart=always
+RestartSec=10
+
+# ── Umgebung ──
+Environment=PYTHONUNBUFFERED=1
+
+# ── Logging ──
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=fatcat
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,29 @@
+# ═══════════════════════════════════════════════════
+#  Fat Cat Planner – Docker Compose
+# ═══════════════════════════════════════════════════
+#
+#  Start:    docker compose up -d
+#  Logs:     docker compose logs -f
+#  Stoppen:  docker compose down
+#  Rebuild:  docker compose up -d --build
+#
+
+services:
+  fatcat_bot:
+    build: .
+    container_name: fatcat_bot
+    restart: unless-stopped
+
+    # ── Umgebungsvariablen ──
+    env_file:
+      - .env
+
+    # ── Persistente Daten ──
+    # Damit beim Container-Neustart keine Daten verloren gehen:
+    volumes:
+      # Datenbank
+      - ./planner.db:/app/planner.db
+      # Konfiguration (wird auch im Container gelesen)
+      - ./.env:/app/.env:ro
+      # Log-Dateien
+      - ./logs:/app/logs

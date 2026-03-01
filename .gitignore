@@ -1,0 +1,22 @@
+# Environments
+.env
+
+# Database
+planner.db
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+logs/
+*.log
+
+# Backups
+backups/
+
+# Python caches and virtualenvs
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
