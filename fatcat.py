@@ -229,6 +229,7 @@ class I18nTranslator(discord.app_commands.Translator):
             "Erstelle ein neues Event (der Flow läuft per DM).": "cmd_fccreate",
             "Die neue Zeitzone (z.B. Europe/Berlin, UTC)": "cmd_fctimezone_set_arg",
             "Lädt alle Duties/Inhalte neu von XIVAPI (dauert evtl. mehrere Minuten).": "cmd_fcdutyupdate",
+            "Verwalte deine Events (editieren oder absagen).": "cmd_eventmanage",
         }
         
         # Check if the string message exists in our map

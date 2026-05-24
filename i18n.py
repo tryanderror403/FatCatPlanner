@@ -513,7 +513,189 @@ TRANSLATIONS = {
     "prompt_choose_role_title": { "en": "🛡️ Choose your role...", "de": "🛡️ Wähle deine Rolle...", "fr": "🛡️ Choisissez votre rôle...", "ja": "🛡️ ロールを選択..." },
     "admin_debug_unknown": { "en": "_(Timezone '{tz_name}' unknown)_", "de": "_(Zeitzone '{tz_name}' unbekannt)_", "fr": "_(Fuseau horaire '{tz_name}' inconnu)_", "ja": "_(タイムゾーン '{tz_name}' 不明)_" },
     "cmd_admin_only": { "en": "🔒 This command is only available for administrators.", "de": "🔒 Dieser Befehl ist nur für Administratoren verfügbar.", "fr": "🔒 Cette commande est réservée aux administrateurs.", "ja": "🔒 このコマンドは管理者専用です。" },
-    "user_lang_success": { "en": "Your preferred language has been set.", "de": "Deine bevorzugte Sprache wurde gesetzt.", "fr": "Votre langue préférée a été définie.", "ja": "言語設定が保存されました。" }
+    "user_lang_success": { "en": "Your preferred language has been set.", "de": "Deine bevorzugte Sprache wurde gesetzt.", "fr": "Votre langue préférée a été définie.", "ja": "言語設定が保存されました。" },
+
+    # ── Event Manager (/fceventmanage) ──
+    "cmd_eventmanage": {
+        "en": "Manage your events (edit or cancel).",
+        "de": "Verwalte deine Events (editieren oder absagen).",
+        "fr": "Gérez vos événements (modifier ou annuler).",
+        "ja": "イベントを管理します（編集またはキャンセル）。"
+    },
+    "manage_title": {
+        "en": "📋 Event Manager",
+        "de": "📋 Event-Manager",
+        "fr": "📋 Gestionnaire d'événements",
+        "ja": "📋 イベントマネージャー"
+    },
+    "manage_no_events": {
+        "en": "ℹ️ No active events found that you can manage.",
+        "de": "ℹ️ Keine aktiven Events gefunden, die du verwalten kannst.",
+        "fr": "ℹ️ Aucun événement actif trouvé que vous pouvez gérer.",
+        "ja": "ℹ️ 管理できるアクティブなイベントが見つかりません。"
+    },
+    "manage_select_placeholder": {
+        "en": "Select an event...",
+        "de": "Wähle ein Event aus...",
+        "fr": "Sélectionnez un événement...",
+        "ja": "イベントを選択..."
+    },
+    "manage_select_event": {
+        "en": "Please select the event you want to manage:",
+        "de": "Bitte wähle das Event aus, das du verwalten möchtest:",
+        "fr": "Veuillez sélectionner l'événement que vous souhaitez gérer :",
+        "ja": "管理したいイベントを選択してください："
+    },
+    "manage_action_title": {
+        "en": "⚙️ Event: {event_title}",
+        "de": "⚙️ Event: {event_title}",
+        "fr": "⚙️ Événement : {event_title}",
+        "ja": "⚙️ イベント: {event_title}"
+    },
+    "manage_action_prompt": {
+        "en": "What would you like to do with this event?",
+        "de": "Was möchtest du mit diesem Event tun?",
+        "fr": "Que souhaitez-vous faire avec cet événement ?",
+        "ja": "このイベントで何をしますか？"
+    },
+    "manage_btn_cancel": {
+        "en": "Cancel Event",
+        "de": "Event absagen",
+        "fr": "Annuler l'événement",
+        "ja": "イベントをキャンセル"
+    },
+    "manage_btn_edit": {
+        "en": "Edit Event",
+        "de": "Event editieren",
+        "fr": "Modifier l'événement",
+        "ja": "イベントを編集"
+    },
+    "manage_cancel_confirm_title": {
+        "en": "⚠️ Confirm Cancellation",
+        "de": "⚠️ Absage bestätigen",
+        "fr": "⚠️ Confirmer l'annulation",
+        "ja": "⚠️ キャンセルの確認"
+    },
+    "manage_cancel_confirm_desc": {
+        "en": "Are you sure you want to cancel **{event_title}**?\n\n📅 {event_time}\n👥 {signup_count} participant(s) will be notified via DM.",
+        "de": "Bist du sicher, dass du **{event_title}** absagen möchtest?\n\n📅 {event_time}\n👥 {signup_count} Teilnehmer werden per DM benachrichtigt.",
+        "fr": "Êtes-vous sûr de vouloir annuler **{event_title}** ?\n\n📅 {event_time}\n👥 {signup_count} participant(s) seront notifié(s) par MP.",
+        "ja": "**{event_title}** をキャンセルしてもよろしいですか？\n\n📅 {event_time}\n👥 {signup_count} 人の参加者にDMで通知されます。"
+    },
+    "manage_btn_confirm_yes": {
+        "en": "Yes, cancel it",
+        "de": "Ja, absagen",
+        "fr": "Oui, annuler",
+        "ja": "はい、キャンセルします"
+    },
+    "manage_btn_confirm_no": {
+        "en": "No, go back",
+        "de": "Nein, zurück",
+        "fr": "Non, retour",
+        "ja": "いいえ、戻る"
+    },
+    "manage_cancel_success": {
+        "en": "✅ Event **{event_title}** has been cancelled. {dm_count} participant(s) were notified.",
+        "de": "✅ Event **{event_title}** wurde abgesagt. {dm_count} Teilnehmer wurden benachrichtigt.",
+        "fr": "✅ L'événement **{event_title}** a été annulé. {dm_count} participant(s) ont été notifié(s).",
+        "ja": "✅ イベント **{event_title}** がキャンセルされました。{dm_count} 人の参加者に通知しました。"
+    },
+    "manage_cancel_aborted": {
+        "en": "↩️ Cancellation aborted. The event remains active.",
+        "de": "↩️ Absage abgebrochen. Das Event bleibt aktiv.",
+        "fr": "↩️ Annulation abandonnée. L'événement reste actif.",
+        "ja": "↩️ キャンセルを中止しました。イベントはアクティブのままです。"
+    },
+    "manage_cancel_dm": {
+        "en": "❌ The event **{event_title}** on **{event_time}** has been cancelled by **{cancelled_by}**.",
+        "de": "❌ Das Event **{event_title}** am **{event_time}** wurde von **{cancelled_by}** abgesagt.",
+        "fr": "❌ L'événement **{event_title}** le **{event_time}** a été annulé par **{cancelled_by}**.",
+        "ja": "❌ イベント **{event_title}**（**{event_time}**）は **{cancelled_by}** によってキャンセルされました。"
+    },
+    "manage_edit_modal_title": {
+        "en": "Edit Event",
+        "de": "Event editieren",
+        "fr": "Modifier l'événement",
+        "ja": "イベントを編集"
+    },
+    "manage_edit_label_title": {
+        "en": "Event Title",
+        "de": "Event-Titel",
+        "fr": "Titre de l'événement",
+        "ja": "イベントタイトル"
+    },
+    "manage_edit_label_time": {
+        "en": "Time (DD.MM.YYYY HH:MM)",
+        "de": "Zeit (TT.MM.JJJJ HH:MM)",
+        "fr": "Heure (JJ.MM.AAAA HH:MM)",
+        "ja": "時間 (DD.MM.YYYY HH:MM)"
+    },
+    "manage_edit_label_freetext": {
+        "en": "Note for participants",
+        "de": "Hinweis für Teilnehmer",
+        "fr": "Note pour les participants",
+        "ja": "参加者へのメモ"
+    },
+    "manage_edit_success": {
+        "en": "✅ Event **{event_title}** has been updated. {dm_count} participant(s) were notified.\n\n{changes}",
+        "de": "✅ Event **{event_title}** wurde aktualisiert. {dm_count} Teilnehmer wurden benachrichtigt.\n\n{changes}",
+        "fr": "✅ L'événement **{event_title}** a été mis à jour. {dm_count} participant(s) ont été notifié(s).\n\n{changes}",
+        "ja": "✅ イベント **{event_title}** が更新されました。{dm_count} 人の参加者に通知しました。\n\n{changes}"
+    },
+    "manage_edit_dm": {
+        "en": "📝 The event **{event_title}** has been updated by **{edited_by}**:\n{changes}",
+        "de": "📝 Das Event **{event_title}** wurde von **{edited_by}** geändert:\n{changes}",
+        "fr": "📝 L'événement **{event_title}** a été modifié par **{edited_by}** :\n{changes}",
+        "ja": "📝 イベント **{event_title}** が **{edited_by}** によって更新されました：\n{changes}"
+    },
+    "manage_edit_change_title": {
+        "en": "📌 Title: {old} → {new}",
+        "de": "📌 Titel: {old} → {new}",
+        "fr": "📌 Titre : {old} → {new}",
+        "ja": "📌 タイトル: {old} → {new}"
+    },
+    "manage_edit_change_time": {
+        "en": "📅 Time: {old} → {new}",
+        "de": "📅 Zeit: {old} → {new}",
+        "fr": "📅 Heure : {old} → {new}",
+        "ja": "📅 時間: {old} → {new}"
+    },
+    "manage_edit_change_freetext": {
+        "en": "📝 Note: {new}",
+        "de": "📝 Hinweis: {new}",
+        "fr": "📝 Note : {new}",
+        "ja": "📝 メモ: {new}"
+    },
+    "manage_edit_time_error": {
+        "en": "❌ Invalid time format! Please use DD.MM.YYYY HH:MM (e.g. 25.12.2026 20:00).",
+        "de": "❌ Ungültiges Zeitformat! Bitte benutze TT.MM.JJJJ HH:MM (z.B. 25.12.2026 20:00).",
+        "fr": "❌ Format d'heure invalide ! Veuillez utiliser JJ.MM.AAAA HH:MM (ex. 25.12.2026 20:00).",
+        "ja": "❌ 無効な時刻形式です！DD.MM.YYYY HH:MM を使用してください（例：25.12.2026 20:00）。"
+    },
+    "manage_edit_time_past": {
+        "en": "❌ The new time is in the past! Please enter a future time.",
+        "de": "❌ Die neue Zeit liegt in der Vergangenheit! Bitte gib eine zukünftige Zeit an.",
+        "fr": "❌ La nouvelle heure est dans le passé ! Veuillez entrer une heure future.",
+        "ja": "❌ 新しい時間は過去です！未来の時間を入力してください。"
+    },
+    "manage_timeout": {
+        "en": "⏰ Timeout – Event management cancelled.",
+        "de": "⏰ Zeitüberschreitung – Event-Verwaltung abgebrochen.",
+        "fr": "⏰ Délai d'attente dépassé – Gestion d'événement annulée.",
+        "ja": "⏰ タイムアウト – イベント管理がキャンセルされました。"
+    },
+    "log_event_cancelled": {
+        "en": "🚫 Event **{event_name}** (ID: {event_id}) was cancelled by **{cancelled_by}**. {dm_count} participant(s) notified.",
+        "de": "🚫 Event **{event_name}** (ID: {event_id}) wurde von **{cancelled_by}** abgesagt. {dm_count} Teilnehmer benachrichtigt.",
+        "fr": "🚫 L'événement **{event_name}** (ID: {event_id}) a été annulé par **{cancelled_by}**. {dm_count} participant(s) notifié(s).",
+        "ja": "🚫 イベント **{event_name}** (ID: {event_id}) は **{cancelled_by}** によってキャンセルされました。{dm_count} 人の参加者に通知しました。"
+    },
+    "log_event_edited": {
+        "en": "✏️ Event **{event_name}** (ID: {event_id}) was edited by **{edited_by}**: {changes}",
+        "de": "✏️ Event **{event_name}** (ID: {event_id}) wurde von **{edited_by}** editiert: {changes}",
+        "fr": "✏️ L'événement **{event_name}** (ID: {event_id}) a été modifié par **{edited_by}** : {changes}",
+        "ja": "✏️ イベント **{event_name}** (ID: {event_id}) は **{edited_by}** によって編集されました: {changes}"
+    },
 }
 
 async def t(guild_id: int | None, key: str, user_id: int | None = None, **kwargs) -> str:

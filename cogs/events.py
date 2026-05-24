@@ -7,6 +7,7 @@ Background-Reminder-Task, der 10 Minuten vor Event-Start warnt.
 
 import asyncio
 import logging
+import os
 from datetime import datetime, timezone, timedelta
 
 import discord
@@ -25,6 +26,10 @@ from views import (
     build_event_embed,
     TimezoneTypeView,
     SkipView,
+    EventManageSelectView,
+    EventManageActionView,
+    EventManageCancelConfirmView,
+    EventEditModal,
 )
 
 log = logging.getLogger("fatcat.events")
@@ -746,6 +751,342 @@ class EventsCog(commands.Cog, name="Events"):
             "[Guild: %s (%d)] [Channel: %s (%d)] Event #%d created: '%s' by User %d (%s).",
             guild.name, guild.id, event_channel.name, event_channel.id, event_id, title, user.id, creator_name,
         )
+
+    async def _send_rate_limited_dms(self, user_ids, message_text, guild_id):
+        """Sendet DMs mit 1s Pause zwischen jeder Nachricht."""
+        sent = 0
+        for uid in user_ids:
+            try:
+                user = self.bot.get_user(uid) or await self.bot.fetch_user(uid)
+                if user:
+                    await user.send(message_text)
+                    sent += 1
+                    await asyncio.sleep(1.0)
+            except discord.errors.Forbidden:
+                pass  # DMs geschlossen
+            except Exception as e:
+                log.debug("Could not send DM to %s: %s", uid, e)
+        return sent
+
+    # ──────────────────────────────────────────────────────────────────
+    #  EVENT MANAGER (/fceventmanage)
+    # ──────────────────────────────────────────────────────────────────
+
+    @commands.hybrid_command(
+        name="fceventmanage",
+        description="Verwalte deine Events (editieren oder absagen)."
+    )
+    async def fceventmanage(self, ctx: commands.Context):
+        """Erlaubt dem Ersteller (oder Admins) das Editieren/Absagen von Events."""
+        await safe_defer(ctx, ephemeral=True)
+        
+        if not ctx.guild:
+            await ctx.send(await t(None, "cmd_admin_only", user_id=ctx.author.id), ephemeral=True)
+            return
+            
+        guild_id = ctx.guild.id
+        
+        # Admin check
+        is_admin = False
+        if ctx.guild and ctx.author.guild_permissions.administrator:
+            is_admin = True
+        else:
+            owner_id_str = os.environ.get("OWNER_ID", "0")
+            try:
+                owner_id = int(owner_id_str)
+            except ValueError:
+                owner_id = 0
+            if ctx.author.id == owner_id:
+                is_admin = True
+                
+        all_events = await db.get_all_events(guild_id)
+        if not all_events:
+            await ctx.send(await t(guild_id, "manage_no_events", user_id=ctx.author.id), ephemeral=True)
+            return
+            
+        # Wenn nicht Admin, zeige nur eigene Events
+        manageable_events = all_events if is_admin else [e for e in all_events if e.get("creator_id") == ctx.author.id]
+        
+        if not manageable_events:
+            await ctx.send(await t(guild_id, "manage_no_events", user_id=ctx.author.id), ephemeral=True)
+            return
+
+        # ── Stufe 1: Event Auswahl ──
+        placeholder = await t(guild_id, "manage_select_placeholder", user_id=ctx.author.id)
+        select_view = EventManageSelectView(manageable_events, placeholder)
+        
+        msg_select = await t(guild_id, "manage_select_event", user_id=ctx.author.id)
+        embed_title = await t(guild_id, "manage_title", user_id=ctx.author.id)
+        
+        embed = discord.Embed(
+            title=embed_title,
+            description=msg_select,
+            color=COLORS["primary"]
+        )
+        
+        msg = await ctx.send(embed=embed, view=select_view, ephemeral=True)
+        await select_view.wait()
+        
+        if not select_view.selected_event_id:
+            await msg.edit(content=await t(guild_id, "manage_timeout", user_id=ctx.author.id), view=None, embed=None)
+            return
+            
+        selected_event = next(e for e in manageable_events if e["event_id"] == select_view.selected_event_id)
+        event_id = selected_event["event_id"]
+        
+        # ── Stufe 2: Aktion wählen ──
+        action_title = await t(guild_id, "manage_action_title", user_id=ctx.author.id, event_title=selected_event["title"])
+        action_prompt = await t(guild_id, "manage_action_prompt", user_id=ctx.author.id)
+        
+        txt_cancel = await t(guild_id, "manage_btn_cancel", user_id=ctx.author.id)
+        txt_edit = await t(guild_id, "manage_btn_edit", user_id=ctx.author.id)
+        
+        action_view = EventManageActionView(txt_cancel, txt_edit)
+        
+        embed.title = action_title
+        embed.description = action_prompt
+        
+        await msg.edit(embed=embed, view=action_view)
+        await action_view.wait()
+        
+        if not action_view.action:
+            await msg.edit(content=await t(guild_id, "manage_timeout", user_id=ctx.author.id), view=None, embed=None)
+            return
+            
+        action = action_view.action
+        
+        # Alle Teilnehmer holen (für DMs später)
+        signups = await db.get_signups(event_id)
+        active_signups = [s for s in signups if s.get("status", "accepted") != "declined"]
+        active_user_ids = [s["user_id"] for s in active_signups]
+        
+        if action == "cancel":
+            # ── Stufe 3a: Event absagen ──
+            confirm_title = await t(guild_id, "manage_cancel_confirm_title", user_id=ctx.author.id)
+            confirm_desc = await t(
+                guild_id, 
+                "manage_cancel_confirm_desc", 
+                user_id=ctx.author.id,
+                event_title=selected_event["title"],
+                event_time=selected_event["time"],
+                signup_count=len(active_user_ids)
+            )
+            
+            txt_yes = await t(guild_id, "manage_btn_confirm_yes", user_id=ctx.author.id)
+            txt_no = await t(guild_id, "manage_btn_confirm_no", user_id=ctx.author.id)
+            
+            confirm_view = EventManageCancelConfirmView(txt_yes, txt_no)
+            
+            embed.title = confirm_title
+            embed.description = confirm_desc
+            embed.color = COLORS["danger"]
+            
+            await msg.edit(embed=embed, view=confirm_view)
+            await confirm_view.wait()
+            
+            if not confirm_view.confirmed:
+                await msg.edit(content=await t(guild_id, "manage_cancel_aborted", user_id=ctx.author.id), view=None, embed=None)
+                return
+                
+            # Absage ausführen
+            await db.archive_event(event_id)
+            
+            # Original Event-Nachricht im Event-Channel löschen
+            channel_id = selected_event.get("channel_id")
+            message_id = selected_event.get("message_id")
+            if channel_id and message_id:
+                try:
+                    event_channel = ctx.guild.get_channel(channel_id)
+                    if event_channel:
+                        original_msg = await event_channel.fetch_message(message_id)
+                        await original_msg.delete()
+                except Exception as e:
+                    log.warning("Could not delete original message for cancelled event %d: %s", event_id, e)
+            
+            # DMs senden
+            dm_msg = await t(
+                guild_id, 
+                "manage_cancel_dm", 
+                event_title=selected_event["title"],
+                event_time=selected_event["time"],
+                cancelled_by=ctx.author.display_name
+            )
+            sent_dms = await self._send_rate_limited_dms(active_user_ids, dm_msg, guild_id)
+            
+            # Admin Log
+            try:
+                settings = await db.get_log_settings(guild_id)
+                if settings and settings["logging_enabled"] and settings["log_channel_id"]:
+                    log_channel = ctx.guild.get_channel(settings["log_channel_id"])
+                    if log_channel:
+                        admin_log = await t(
+                            guild_id,
+                            "log_event_cancelled",
+                            event_name=selected_event["title"],
+                            event_id=event_id,
+                            cancelled_by=ctx.author.display_name,
+                            dm_count=sent_dms
+                        )
+                        await log_channel.send(admin_log)
+            except Exception as e:
+                log.error("Could not send admin log for event cancellation: %s", e)
+            
+            success_msg = await t(guild_id, "manage_cancel_success", user_id=ctx.author.id, event_title=selected_event["title"], dm_count=sent_dms)
+            await msg.edit(content=success_msg, view=None, embed=None)
+            
+        elif action == "edit":
+            # ── Stufe 3b: Event editieren ──
+            modal_title = await t(guild_id, "manage_edit_modal_title", user_id=ctx.author.id)
+            label_title = await t(guild_id, "manage_edit_label_title", user_id=ctx.author.id)
+            label_time = await t(guild_id, "manage_edit_label_time", user_id=ctx.author.id)
+            label_freetext = await t(guild_id, "manage_edit_label_freetext", user_id=ctx.author.id)
+            
+            modal = EventEditModal(
+                modal_title=modal_title,
+                label_title=label_title,
+                label_time=label_time,
+                label_freetext=label_freetext,
+                default_title=selected_event["title"],
+                default_time=selected_event["time"],
+                default_freetext=selected_event.get("free_text", "")
+            )
+            
+            # Modal aufrufen (via der un-deferred Interaction vom Button)
+            if not action_view.last_interaction:
+                await msg.edit(content=await t(guild_id, "manage_timeout", user_id=ctx.author.id), view=None, embed=None)
+                return
+                
+            await action_view.last_interaction.response.send_modal(modal)
+            await modal.wait()
+            
+            if not modal.submitted:
+                return  # Modal wurde geschlossen / Timeout
+                
+            # Werte auswerten
+            new_title = modal.new_title or selected_event["title"]
+            new_freetext = modal.new_freetext or selected_event.get("free_text", "")
+            
+            # Zeitverarbeitung
+            new_time_str = modal.new_time or selected_event["time"]
+            unix_ts = None
+            
+            if new_time_str != selected_event["time"]:
+                # Muss neu geparst werden
+                server_tz_name = await db.get_timezone(guild_id)
+                import pytz
+                try:
+                    server_tz = pytz.timezone(server_tz_name)
+                except pytz.UnknownTimeZoneError:
+                    server_tz = pytz.timezone("Europe/Berlin")
+                    
+                parsed_dt = None
+                for fmt in ["%d.%m.%Y %H:%M", "%Y-%m-%d %H:%M", "%d/%m/%Y %H:%M", "%Y-%m-%dT%H:%M"]:
+                    try:
+                        dt_naive = datetime.strptime(new_time_str, fmt)
+                        
+                        # Apply timezone depending on how it was originally created
+                        tz_type = selected_event.get("timezone_type", "local")
+                        if tz_type == "server":
+                            dt_aware = server_tz.localize(dt_naive)
+                        else:
+                            # Wir nehmen an, die Eingabe im Modal ist in der Server-Zeitzone,
+                            # da wir die Local-Time des Users nicht sicher kennen.
+                            # Für eine perfekte UX bräuchte man den time-picker.
+                            dt_aware = server_tz.localize(dt_naive)
+                            
+                        parsed_dt = dt_aware
+                        break
+                    except ValueError:
+                        pass
+                        
+                if not parsed_dt:
+                    err_msg = await t(guild_id, "manage_edit_time_error", user_id=ctx.author.id)
+                    # Use followup because the modal response was deferred
+                    await action_view.last_interaction.followup.send(err_msg, ephemeral=True)
+                    return
+                    
+                now = datetime.now(timezone.utc)
+                if parsed_dt.astimezone(timezone.utc) < now:
+                    err_msg = await t(guild_id, "manage_edit_time_past", user_id=ctx.author.id)
+                    await action_view.last_interaction.followup.send(err_msg, ephemeral=True)
+                    return
+                    
+                unix_ts = int(parsed_dt.timestamp())
+                new_time_str = dt_naive.strftime("%d.%m.%Y %H:%M")  # Normalisieren
+                
+            # Hat sich was geändert?
+            changes = []
+            if new_title != selected_event["title"]:
+                changes.append(await t(guild_id, "manage_edit_change_title", old=selected_event["title"], new=new_title))
+            if new_time_str != selected_event["time"]:
+                changes.append(await t(guild_id, "manage_edit_change_time", old=selected_event["time"], new=new_time_str))
+            if new_freetext != selected_event.get("free_text", ""):
+                changes.append(await t(guild_id, "manage_edit_change_freetext", new=new_freetext))
+                
+            if not changes:
+                await action_view.last_interaction.followup.send("Keine Änderungen vorgenommen.", ephemeral=True)
+                return
+                
+            changes_str = "\n".join(changes)
+            
+            # DB Update
+            await db.update_event(
+                event_id, 
+                title=new_title if new_title != selected_event["title"] else None,
+                event_time=new_time_str if new_time_str != selected_event["time"] else None,
+                unix_timestamp=unix_ts,
+                free_text=new_freetext if new_freetext != selected_event.get("free_text", "") else None
+            )
+            
+            # Embed in Channel updaten
+            try:
+                # Wir bauen ein "frisches" Event-Objekt für build_event_embed
+                updated_event = await db.get_event(event_id)
+                if updated_event and updated_event.get("channel_id") and updated_event.get("message_id"):
+                    event_channel = ctx.guild.get_channel(updated_event["channel_id"])
+                    if event_channel:
+                        original_msg = await event_channel.fetch_message(updated_event["message_id"])
+                        new_embed = await build_event_embed(updated_event)
+                        await original_msg.edit(embed=new_embed)
+            except Exception as e:
+                log.warning("Could not update original message for edited event %d: %s", event_id, e)
+                
+            # DMs senden
+            dm_msg = await t(
+                guild_id, 
+                "manage_edit_dm", 
+                event_title=selected_event["title"],
+                edited_by=ctx.author.display_name,
+                changes=changes_str
+            )
+            sent_dms = await self._send_rate_limited_dms(active_user_ids, dm_msg, guild_id)
+            
+            # Admin Log
+            try:
+                settings = await db.get_log_settings(guild_id)
+                if settings and settings["logging_enabled"] and settings["log_channel_id"]:
+                    log_channel = ctx.guild.get_channel(settings["log_channel_id"])
+                    if log_channel:
+                        admin_log = await t(
+                            guild_id,
+                            "log_event_edited",
+                            event_name=new_title,
+                            event_id=event_id,
+                            edited_by=ctx.author.display_name,
+                            changes=changes_str
+                        )
+                        await log_channel.send(admin_log)
+            except Exception as e:
+                log.error("Could not send admin log for event edit: %s", e)
+            
+            success_msg = await t(
+                guild_id, 
+                "manage_edit_success", 
+                event_title=new_title, 
+                dm_count=sent_dms,
+                changes=changes_str
+            )
+            await action_view.last_interaction.followup.send(success_msg, ephemeral=True)
 
     # ──────────────────────────────────────────────────────────────────
     #  REMINDER BACKGROUND-TASK (jede Minute)

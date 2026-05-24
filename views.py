@@ -896,6 +896,149 @@ class TimezoneTypeView(ui.View):
         await interaction.response.defer()
 
 # ──────────────────────────────────────────────────────────────────────
+#  EVENT MANAGER VIEWS (/fceventmanage)
+# ──────────────────────────────────────────────────────────────────────
+
+class EventManageSelectView(ui.View):
+    """Dropdown zur Auswahl eines Events für die Verwaltung."""
+
+    def __init__(self, events: list[dict], placeholder: str):
+        super().__init__(timeout=120)
+        self.selected_event_id: int | None = None
+
+        options = []
+        for event in events[:25]:  # Discord-Limit: max 25 Optionen
+            title = (event.get("title") or "???")[:100]
+            time_str = event.get("time", "")
+            event_id = event["event_id"]
+            desc = f"{time_str} | ID: #{event_id}"[:100]
+            options.append(
+                discord.SelectOption(label=title, value=str(event_id), description=desc)
+            )
+
+        if options:
+            select = ui.Select(
+                placeholder=placeholder,
+                options=options,
+                custom_id="manage_event_select",
+            )
+            select.callback = self._on_select
+            self.add_item(select)
+
+    async def _on_select(self, interaction: discord.Interaction):
+        self.selected_event_id = int(interaction.data["values"][0])
+        self.stop()
+        await interaction.response.defer()
+
+
+class EventManageActionView(ui.View):
+    """View mit zwei Buttons: Event absagen oder editieren."""
+
+    def __init__(self, txt_cancel: str, txt_edit: str):
+        super().__init__(timeout=120)
+        self.action: str | None = None
+        self.last_interaction: discord.Interaction | None = None
+
+        # Labels dynamisch setzen
+        buttons = [child for child in self.children if isinstance(child, discord.ui.Button)]
+        if len(buttons) >= 2:
+            buttons[0].label = txt_cancel
+            buttons[1].label = txt_edit
+
+    @ui.button(label="Cancel Event", style=discord.ButtonStyle.danger, emoji="🗑️")
+    async def btn_cancel(self, interaction: discord.Interaction, button: ui.Button):
+        self.action = "cancel"
+        self.stop()
+        await interaction.response.defer()
+
+    @ui.button(label="Edit Event", style=discord.ButtonStyle.primary, emoji="✏️")
+    async def btn_edit(self, interaction: discord.Interaction, button: ui.Button):
+        self.action = "edit"
+        self.last_interaction = interaction
+        self.stop()
+        # Modals MUST be sent in response to an interaction, so we do NOT defer here.
+
+
+class EventManageCancelConfirmView(ui.View):
+    """Bestätigungsdialog für die Event-Absage."""
+
+    def __init__(self, txt_yes: str, txt_no: str):
+        super().__init__(timeout=60)
+        self.confirmed: bool = False
+
+        buttons = [child for child in self.children if isinstance(child, discord.ui.Button)]
+        if len(buttons) >= 2:
+            buttons[0].label = txt_yes
+            buttons[1].label = txt_no
+
+    @ui.button(label="Yes, cancel it", style=discord.ButtonStyle.danger, emoji="✅")
+    async def btn_yes(self, interaction: discord.Interaction, button: ui.Button):
+        self.confirmed = True
+        self.stop()
+        await interaction.response.defer()
+
+    @ui.button(label="No, go back", style=discord.ButtonStyle.secondary, emoji="❌")
+    async def btn_no(self, interaction: discord.Interaction, button: ui.Button):
+        self.confirmed = False
+        self.stop()
+        await interaction.response.defer()
+
+
+class EventEditModal(ui.Modal):
+    """Modal zum Editieren von Event-Titel, Uhrzeit und Freitext."""
+
+    def __init__(
+        self,
+        modal_title: str,
+        label_title: str,
+        label_time: str,
+        label_freetext: str,
+        default_title: str = "",
+        default_time: str = "",
+        default_freetext: str = "",
+    ):
+        super().__init__(title=modal_title[:45], timeout=300)
+        self.submitted = False
+        self.new_title: str = ""
+        self.new_time: str = ""
+        self.new_freetext: str = ""
+
+        self.input_title = ui.TextInput(
+            label=label_title[:45],
+            style=discord.TextStyle.short,
+            required=False,
+            default=default_title,
+            max_length=100,
+        )
+        self.input_time = ui.TextInput(
+            label=label_time[:45],
+            style=discord.TextStyle.short,
+            required=False,
+            default=default_time,
+            placeholder="DD.MM.YYYY HH:MM",
+            max_length=20,
+        )
+        self.input_freetext = ui.TextInput(
+            label=label_freetext[:45],
+            style=discord.TextStyle.paragraph,
+            required=False,
+            default=default_freetext or "",
+            max_length=500,
+        )
+
+        self.add_item(self.input_title)
+        self.add_item(self.input_time)
+        self.add_item(self.input_freetext)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        self.submitted = True
+        self.new_title = self.input_title.value.strip()
+        self.new_time = self.input_time.value.strip()
+        self.new_freetext = self.input_freetext.value.strip()
+        await interaction.response.defer(ephemeral=True)
+
+
+# ──────────────────────────────────────────────────────────────────────
 #  HILFSFUNKTIONEN
 # ──────────────────────────────────────────────────────────────────────
 

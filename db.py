@@ -504,6 +504,52 @@ async def get_event(event_id: int) -> dict | None:
         return dict(row) if row else None
 
 
+async def update_event(
+    event_id: int,
+    title: str | None = None,
+    event_time: str | None = None,
+    unix_timestamp: int | None = None,
+    free_text: str | None = None,
+) -> bool:
+    """
+    Aktualisiert ein bestehendes Event.
+    Nur übergebene (nicht-None) Felder werden geändert.
+    Gibt True zurück bei Erfolg, False wenn das Event nicht existiert.
+    """
+    # Dynamisch die zu aktualisierenden Felder aufbauen
+    updates = []
+    values = []
+
+    if title is not None:
+        updates.append("title = ?")
+        values.append(title)
+        # content_name mit dem Titel synchron halten
+        updates.append("content_name = ?")
+        values.append(title)
+    if event_time is not None:
+        updates.append("time = ?")
+        values.append(event_time)
+    if unix_timestamp is not None:
+        updates.append("unix_timestamp = ?")
+        values.append(unix_timestamp)
+    if free_text is not None:
+        updates.append("free_text = ?")
+        values.append(free_text)
+
+    if not updates:
+        return False
+
+    values.append(event_id)
+
+    async with aiosqlite.connect(DB_PATH) as db:
+        cursor = await db.execute(
+            f"UPDATE events SET {', '.join(updates)} WHERE event_id = ? AND is_active = 1",
+            tuple(values),
+        )
+        await db.commit()
+        return cursor.rowcount > 0
+
+
 async def get_upcoming_events(minutes_ahead: int = 10) -> list[dict]:
     """
     Gibt alle Events zurück, die in den nächsten X Minuten starten.
