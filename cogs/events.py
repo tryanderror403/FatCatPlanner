@@ -778,7 +778,7 @@ class EventsCog(commands.Cog, name="Events"):
     )
     async def fceventmanage(self, ctx: commands.Context):
         """Erlaubt dem Ersteller (oder Admins) das Editieren/Absagen von Events."""
-        await safe_defer(ctx, ephemeral=True)
+        await ctx.defer(ephemeral=True)
         
         if not ctx.guild:
             await ctx.send(await t(None, "cmd_admin_only", user_id=ctx.author.id), ephemeral=True)
@@ -879,7 +879,7 @@ class EventsCog(commands.Cog, name="Events"):
             
             embed.title = confirm_title
             embed.description = confirm_desc
-            embed.color = COLORS["danger"]
+            embed.color = COLORS["error"]
             
             await msg.edit(embed=embed, view=confirm_view)
             await confirm_view.wait()
