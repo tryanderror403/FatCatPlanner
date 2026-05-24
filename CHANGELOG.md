@@ -6,7 +6,7 @@
 
 # English
 
-## [0.2.0] – 2026-05-24
+## [0.2.0] – 2026-05-24 (Updated by tryanderror403)
 
 - **Added**: Automated update script (update_bot.sh / .bat) with a 90-day retention cleanup for old backups.
 - **Added**: New Discord slash commands for advanced event management (localized in EN, DE, FR, JA).
@@ -47,7 +47,7 @@
 
 # Deutsch
 
-## [0.2.0] – 2026-05-24
+## [0.2.0] – 2026-05-24 (Updated by tryanderror403)
 
 - **Hinzugefügt**: Automatisiertes Update-Skript (update_bot.sh / .bat) mit 90-Tage-Aufbewahrungs-Bereinigung für alte Backups.
 - **Hinzugefügt**: Neue Discord-Slash-Commands für fortgeschrittenes Event-Management (lokalisiert in EN, DE, FR, JA).
@@ -88,7 +88,7 @@
 
 # Français
 
-## [0.2.0] – 2026-05-24
+## [0.2.0] – 2026-05-24 (Updated by tryanderror403)
 
 - **Ajouté** : Script de mise à jour automatisé (update_bot.sh / .bat) avec un nettoyage de rétention de 90 jours pour les anciennes sauvegardes.
 - **Ajouté** : Nouvelles commandes slash Discord pour la gestion avancée des événements (localisées en EN, DE, FR, JA).
@@ -129,7 +129,7 @@
 
 # 日本語
 
-## [0.2.0] – 2026-05-24
+## [0.2.0] – 2026-05-24 (Updated by tryanderror403)
 
 - **追加**: 古いバックアップの90日間保持クリーンアップを備えた自動更新スクリプト（update_bot.sh / .bat）。
 - **追加**: 高度なイベント管理用の新しいDiscordスラッシュコマンド（EN、DE、FR、JAにローカライズ）。
