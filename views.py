@@ -947,9 +947,9 @@ class EventManageActionView(ui.View):
 
     @ui.button(label="Cancel Event", style=discord.ButtonStyle.danger, emoji="🗑️")
     async def btn_cancel(self, interaction: discord.Interaction, button: ui.Button):
+        await interaction.response.defer(ephemeral=True)
         self.action = "cancel"
         self.stop()
-        await interaction.response.defer()
 
     @ui.button(label="Edit Event", style=discord.ButtonStyle.primary, emoji="✏️")
     async def btn_edit(self, interaction: discord.Interaction, button: ui.Button):
