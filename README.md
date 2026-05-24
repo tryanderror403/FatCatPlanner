@@ -1,4 +1,4 @@
-# 🐱 Fat Cat Planner v0.1.0
+# 🐱 Fat Cat Planner v0.2.0
 
 [🇬🇧 English](#english) | [🇩🇪 Deutsch](#deutsch) | [🇫🇷 Français](#français) | [🇯🇵 日本語](#日本語)
 
@@ -55,6 +55,10 @@
 - Expired events are automatically removed from the event channel and database after 8 hours (runs hourly).
 - An admin log notification is sent for each cleaned event.
 
+### 💾 Automated 90-Day Backup & Retention System
+- Automatically creates database backups before every update.
+- Old backup files (older than 90 days) are automatically deleted for data hygiene.
+
 ## 📌 Command Reference
 
 All commands are available as **Hybrid Commands**: Both as `/slash-command` and with the `!` prefix.
@@ -64,6 +68,7 @@ All commands are available as **Hybrid Commands**: Both as `/slash-command` and 
 | Command | Description |
 |---------|-------------|
 | `/fccreate` | Create a new event (interactive DM flow) |
+| `/fceventmanage` | Manage your events (edit or cancel) |
 | `/fcmylanguage` | Set your personal language for DMs and ephemeral messages |
 | `/fctime` | Display current Eorzea Time and UTC server time |
 | `/fchelp` | Overview of all user commands |
@@ -178,6 +183,10 @@ Safely terminate with `Ctrl + C`.
 - Abgelaufene Events werden nach 8 Stunden automatisch aus dem Event-Kanal und der Datenbank entfernt (stündlich).
 - Für jedes bereinigte Event wird eine Admin-Log-Benachrichtigung gesendet.
 
+### 💾 Automatisches 90-Tage Backup & Bereinigungs-System
+- Erstellt vor jedem Update automatisch Datenbank-Backups.
+- Veraltete Backup-Dateien (älter als 90 Tage) werden für die Datenhygiene automatisch gelöscht.
+
 ## 📌 Befehlsstruktur
 
 Alle Befehle sind als **Hybrid Commands** verfügbar: Sowohl als `/Slash-Command` als auch mit dem Präfix `!`.
@@ -187,6 +196,7 @@ Alle Befehle sind als **Hybrid Commands** verfügbar: Sowohl als `/Slash-Command
 | Befehl | Beschreibung |
 |--------|-------------|
 | `/fccreate` | Erstelle ein neues Event (interaktiver DM-Flow) |
+| `/fceventmanage` | Verwalte deine Events (editieren oder absagen) |
 | `/fcmylanguage` | Persönliche Sprache für DMs und ephemerale Nachrichten einstellen |
 | `/fctime` | Aktuelle Eorzea-Zeit und UTC-Serverzeit anzeigen |
 | `/fchelp` | Übersicht aller User-Befehle |
@@ -301,6 +311,10 @@ Sicher beenden mit `Strg + C`.
 - Les événements expirés sont automatiquement supprimés du canal et de la base de données après 8 heures (exécution horaire).
 - Une notification de log admin est envoyée pour chaque événement nettoyé.
 
+### 💾 Système automatisé de sauvegarde et de rétention sur 90 jours
+- Crée automatiquement des sauvegardes de la base de données avant chaque mise à jour.
+- Les anciens fichiers de sauvegarde (datant de plus de 90 jours) sont automatiquement supprimés pour l'hygiène des données.
+
 ## 📌 Référence des commandes
 
 Toutes les commandes sont disponibles en tant que **Commandes hybrides** : `/commande-slash` et préfixe `!`.
@@ -310,6 +324,7 @@ Toutes les commandes sont disponibles en tant que **Commandes hybrides** : `/com
 | Commande | Description |
 |----------|-------------|
 | `/fccreate` | Créer un nouvel événement (flux interactif en MP) |
+| `/fceventmanage` | Gérez vos événements (modifier ou annuler) |
 | `/fcmylanguage` | Définir votre langue personnelle pour les MP et messages éphémères |
 | `/fctime` | Afficher l'heure éorzéenne et l'heure UTC du serveur |
 | `/fchelp` | Aperçu de toutes les commandes utilisateur |
@@ -424,6 +439,10 @@ Arrêt sécurisé avec `Ctrl + C`.
 - 期限切れのイベントは8時間後にイベントチャンネルとデータベースから自動的に削除されます（毎時実行）
 - クリーンアップされた各イベントについて管理ログ通知が送信されます
 
+### 💾 90日間の自動バックアップ＆保持システム
+- 更新ごとにデータベースのバックアップを自動作成します。
+- データ衛生のため、古いバックアップファイル（90日以上経過）は自動的に削除されます。
+
 ## 📌 コマンド一覧
 
 すべてのコマンドは**ハイブリッドコマンド**として利用可能: `/スラッシュコマンド` と `!` プレフィックスの両方に対応
@@ -433,6 +452,7 @@ Arrêt sécurisé avec `Ctrl + C`.
 | コマンド | 説明 |
 |---------|------|
 | `/fccreate` | 新しいイベントを作成（DMでのインタラクティブフロー） |
+| `/fceventmanage` | イベントを管理します（編集またはキャンセル） |
 | `/fcmylanguage` | DM・エフェメラルメッセージ用の個人言語を設定 |
 | `/fctime` | 現在のエオルゼア時間とUTCサーバー時間を表示 |
 | `/fchelp` | 全ユーザーコマンドの一覧 |

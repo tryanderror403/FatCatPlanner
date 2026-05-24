@@ -6,6 +6,14 @@
 
 # English
 
+## [0.2.0] – 2026-05-24
+
+- **Added**: Automated update script (update_bot.sh / .bat) with a 90-day retention cleanup for old backups.
+- **Added**: New Discord slash commands for advanced event management (localized in EN, DE, FR, JA).
+- **Fixed**: KeyError during event management (KeyError: 'danger').
+- **Fixed**: Context response attribute error during deferred interactions.
+- **Changed**: Persistent volume mapping for the backup folder in docker-compose.yml.
+
 ## [0.1.0] – 2026-03-01
 
 ### 🎉 Initial Release
@@ -38,6 +46,14 @@
 ---
 
 # Deutsch
+
+## [0.2.0] – 2026-05-24
+
+- **Hinzugefügt**: Automatisiertes Update-Skript (update_bot.sh / .bat) mit 90-Tage-Aufbewahrungs-Bereinigung für alte Backups.
+- **Hinzugefügt**: Neue Discord-Slash-Commands für fortgeschrittenes Event-Management (lokalisiert in EN, DE, FR, JA).
+- **Behoben**: KeyError während des Event-Managements (KeyError: 'danger').
+- **Behoben**: Context-Response-Attributfehler bei deferred Interaktionen.
+- **Geändert**: Persistentes Volume-Mapping für den Backup-Ordner in docker-compose.yml.
 
 ## [0.1.0] – 2026-03-01
 
@@ -72,6 +88,14 @@
 
 # Français
 
+## [0.2.0] – 2026-05-24
+
+- **Ajouté** : Script de mise à jour automatisé (update_bot.sh / .bat) avec un nettoyage de rétention de 90 jours pour les anciennes sauvegardes.
+- **Ajouté** : Nouvelles commandes slash Discord pour la gestion avancée des événements (localisées en EN, DE, FR, JA).
+- **Corrigé** : KeyError lors de la gestion d'événements (KeyError: 'danger').
+- **Corrigé** : Erreur d'attribut de réponse de contexte lors des interactions différées.
+- **Modifié** : Mappage de volume persistant pour le dossier de sauvegarde dans docker-compose.yml.
+
 ## [0.1.0] – 2026-03-01
 
 ### 🎉 Version initiale
@@ -104,6 +128,14 @@
 ---
 
 # 日本語
+
+## [0.2.0] – 2026-05-24
+
+- **追加**: 古いバックアップの90日間保持クリーンアップを備えた自動更新スクリプト（update_bot.sh / .bat）。
+- **追加**: 高度なイベント管理用の新しいDiscordスラッシュコマンド（EN、DE、FR、JAにローカライズ）。
+- **修正**: イベント管理中のKeyError（KeyError: 'danger'）。
+- **修正**: 遅延（deferred）インタラクション中のContext response属性エラー。
+- **変更**: docker-compose.ymlのバックアップフォルダーに対する永続的なボリュームマッピング。
 
 ## [0.1.0] – 2026-03-01
 
