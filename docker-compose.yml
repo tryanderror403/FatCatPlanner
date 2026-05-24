@@ -25,5 +25,7 @@ services:
       - ./planner.db:/app/planner.db
       # Konfiguration (wird auch im Container gelesen)
       - ./.env:/app/.env:ro
+      # Backups
+      - ./backups:/app/backups
       # Log-Dateien
       - ./logs:/app/logs

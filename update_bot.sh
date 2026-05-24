@@ -7,6 +7,10 @@ echo "Starte Update-Prozess..."
 # Stelle sicher, dass der backups-Ordner existiert
 mkdir -p backups
 
+# Alte Backups bereinigen (> 90 Tage)
+echo "Bereinige alte Backups..."
+find backups/ -name "planner_update_backup_*" -mtime +90 -delete
+
 DB_FILE="planner.db"
 
 if [ -f "$DB_FILE" ]; then
@@ -25,8 +29,11 @@ else
     echo "Keine planner.db gefunden, überspringe Backup."
 fi
 
-# Hier das eigentliche Update ausführen (z. B. git pull pder docker compose pull)
+# Hier das eigentliche Update ausführen
 echo "Ziehe neueste Updates..."
-# git pull
+git pull origin main
+
+echo "Baue und starte Docker-Container neu..."
+docker compose up -d --build
 
 echo "Update-Prozess abgeschlossen."

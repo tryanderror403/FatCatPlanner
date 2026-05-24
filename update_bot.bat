@@ -6,6 +6,10 @@ echo Starte Update-Prozess...
 
 if not exist "backups\" mkdir backups
 
+:: Alte Backups bereinigen (> 90 Tage)
+echo Bereinige alte Backups...
+ForFiles /p "backups" /s /d -90 /c "cmd /c del /q @file" 2>nul
+
 set "DB_FILE=planner.db"
 
 if exist "%DB_FILE%" (
@@ -38,7 +42,10 @@ if exist "%DB_FILE%" (
 
 :: Hier das eigentliche Update ausfuehren
 echo Ziehe neueste Updates...
-:: git pull
+git pull origin main
+
+echo Baue und starte Docker-Container neu...
+docker compose up -d --build
 
 echo Update-Prozess abgeschlossen.
 pause
