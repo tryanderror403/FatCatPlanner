@@ -595,6 +595,22 @@ async def archive_event(event_id: int) -> None:
         await db.commit()
 
 
+async def clear_message_id(event_id: int) -> None:
+    """Setzt die message_id eines Events auf NULL, um zu markieren, dass die Discord-Nachricht gelöscht wurde."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute("UPDATE events SET message_id = NULL WHERE event_id = ?", (event_id,))
+        await db.commit()
+
+
+async def get_all_events_with_messages() -> list[dict]:
+    """Gibt alle Events (auch archivierte) zurück, die noch eine message_id haben."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute("SELECT * FROM events WHERE message_id IS NOT NULL")
+        rows = await cursor.fetchall()
+        return [dict(row) for row in rows]
+
+
 async def purge_ancient_data() -> int:
     """
     Sucht nach Events, die älter als 3 Jahre (1095 Tage) sind, und löscht diese sowie 

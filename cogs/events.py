@@ -900,6 +900,9 @@ class EventsCog(commands.Cog, name="Events"):
                     if event_channel:
                         original_msg = await event_channel.fetch_message(message_id)
                         await original_msg.delete()
+                        await db.clear_message_id(event_id)
+                except discord.NotFound:
+                    await db.clear_message_id(event_id)
                 except Exception as e:
                     log.warning("Could not delete original message for cancelled event %d: %s", event_id, e)
             
@@ -1232,7 +1235,7 @@ class EventsCog(commands.Cog, name="Events"):
             import pytz
             from i18n import t
 
-            events = await db.get_all_events()
+            events = await db.get_all_events_with_messages()
             now_utc = datetime.now(timezone.utc)
             # Pro Guild: Liste der bereinigten Event-Infos (für Admin-Log)
             cleaned_per_guild: dict[int, list[dict]] = {}
@@ -1276,8 +1279,10 @@ class EventsCog(commands.Cog, name="Events"):
                 event_title = event.get("title", "Unknown")
                 channel_id = event.get("channel_id")
                 message_id = event.get("message_id")
+                is_active = event.get("is_active", 1)
 
                 # ── Discord-Nachricht löschen ──
+                message_deleted = False
                 if channel_id and message_id:
                     try:
                         guild = self.bot.get_guild(guild_id)
@@ -1286,20 +1291,25 @@ class EventsCog(commands.Cog, name="Events"):
                             if channel:
                                 msg = await channel.fetch_message(message_id)
                                 await msg.delete()
+                                message_deleted = True
                                 log.info("🗑️ Deleted Discord message %d for event #%d in guild %d.", message_id, event_id, guild_id)
                     except discord.NotFound:
                         log.debug("Message %d for event #%d already deleted.", message_id, event_id)
+                        message_deleted = True
                     except (discord.Forbidden, discord.HTTPException) as e:
                         log.warning("Could not delete message %d for event #%d: %s", message_id, event_id, e)
                     except Exception as e:
                         log.error("Unexpected error deleting message for event #%d: %s", event_id, e, exc_info=True)
 
-                # ── Event in DB archivieren (Soft-Delete) ──
-                await db.archive_event(event_id)
+                if message_deleted:
+                    await db.clear_message_id(event_id)
 
-                if guild_id not in cleaned_per_guild:
-                    cleaned_per_guild[guild_id] = []
-                cleaned_per_guild[guild_id].append({"event_id": event_id, "title": event_title})
+                # ── Event in DB archivieren (Soft-Delete) ──
+                if is_active == 1:
+                    await db.archive_event(event_id)
+                    if guild_id not in cleaned_per_guild:
+                        cleaned_per_guild[guild_id] = []
+                    cleaned_per_guild[guild_id].append({"event_id": event_id, "title": event_title})
 
             # ── Admin-Log & Konsolen-Log ──
             for g_id, cleaned_events in cleaned_per_guild.items():
